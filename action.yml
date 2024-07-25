@@ -70,8 +70,7 @@ runs:
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
-        jq -r '{get: .source_blob.get_url, put: .source_blob.put_url}')
-        run: echo SOURCE_ENDPOINT=$SOURCE_ENDPOINT >> $GITHUB_ENV
+        jq -r '{get: .source_blob.get_url, put: .source_blob.put_url}') && echo SOURCE_ENDPOINT=$SOURCE_ENDPOINT >> $GITHUB_ENV
       # echo ::set-output name=SOURCE_ENDPOINT::$SOURCE_ENDPOINT
       # echo SOURCE_ENDPOINT=$SOURCE_ENDPOINT
     # it assumes that this asction was preceeded by the cehckout action
