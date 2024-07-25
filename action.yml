@@ -86,7 +86,7 @@ runs:
       # env:
       #   SOURCE_ENDPOINT_GET: ${{ steps.source_endpoint_env.outputs.SOURCE_ENDPOINT_GET }}
       run: |
-        export URL=$(echo ${{ toJSON($SOURCE_ENDPOINT) }} | jq -r '.put')
+        export URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.put')
         curl $URL -X PUT -H 'Content-Type:' --data-binary @source.tar.gz
     # - name: "Create Team App (Setup with app.json)"
     #   if: ${{ github.event_name == 'pull_request' }}
@@ -124,7 +124,7 @@ runs:
       shell: bash
       run: |
         echo 'Create Build'
-        export SOURCE_GET_URL=$(echo ${{ toJSON($SOURCE_ENDPOINT) }} | jq -r '.get')
+        export SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.get')
         export NEW_BUILD_OUTPUT=$(curl -X POST https://api.heroku.com/apps/${{ inputs.heroku-app-name }}"/builds \
         -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${GITHUB_SHA::7}"'"}}' \
         -H 'Accept: application/vnd.heroku+json; version=3' \
