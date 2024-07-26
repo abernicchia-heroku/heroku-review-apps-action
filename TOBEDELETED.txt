@@ -1,0 +1,24 @@
+{
+  "app": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "app_setup": {
+    "id": "Z01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "branch": "example",
+  "created_at": "2015-01-01T12:00:00Z",
+  "id": "01234567-89ab-cdef-0123-456789abcdef",
+  "pipeline": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "status": "pending",
+  "updated_at": "2015-01-01T12:00:00Z",
+  "creator": null,
+  "wait_for_ci": true,
+  "error_status": "example",
+  "message": "example",
+  "fork_repo": {
+    "id": "123456"
+  },
+  "pr_number": 24
+}
