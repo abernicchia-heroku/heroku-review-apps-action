@@ -62,7 +62,6 @@ runs:
       shell: bash
       run: |
         echo 'Create Review App'
-        echo "this is the pipID: ${{ inputs.heroku-pipeline-id }}"
         export SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.get')
         export NEW_REVIEWAPP_OUTPUT=$(curl -X POST https://api.heroku.com/review-apps \
         -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${GITHUB_SHA::7}"'"},
@@ -74,21 +73,7 @@ runs:
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}")
 
-        echo "NEW_REVIEWAPP_OUTPUT=$NEW_REVIEWAPP_OUTPUT"
-        export NEW_BUILD_ID=$(echo $NEW_REVIEWAPP_OUTPUT | jq -r '.app.id')
-      # export OUTPUT_STREAM_URL=$(echo $NEW_REVIEWAPP_OUTPUT | jq -r '.output_stream_url')
-      # echo "OUTPUT_STREAM_URL=$OUTPUT_STREAM_URL"
 
-      # echo "Getting build output..."
-      # curl --silent $OUTPUT_STREAM_URL
-      # NEW_BUILD_STATUS=$(curl --silent https://api.heroku.com/apps/${{ inputs.heroku-app-name }}/builds/$NEW_BUILD_ID \
-      # -H 'Accept: application/vnd.heroku+json; version=3' \
-      # -H "Content-Type: application/json" \
-      # -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
-      # jq -r '.status')
-
-      # echo "Build status: $NEW_BUILD_STATUS"
-      # if [ "$NEW_BUILD_STATUS" != "succeeded" ]; then exit 1; fi
 
     #TO BE REINSTATED
     # - name: Create Build
@@ -124,10 +109,18 @@ runs:
     #   shell: bash
     #   run: echo url=$(echo https://${{ inputs.heroku-app-name }}.herokuapp.com) >> $GITHUB_OUTPUT
 
-    # - name: Delete Review App
-    #   if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
-    #   shell: bash
-    #   run: |
+    - name: Delete Review App
+      if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
+      shell: bash
+      run: |
+        REVIEWAPP_ID_TOBEDELETED=$(curl https://api.heroku.com/pipelines/${{ inputs.heroku-api-key }}/review-apps \
+        -H "Content-Type: application/json" \
+        -H "Accept: application/vnd.heroku+json; version=3" \
+        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
+        jq -r 'map(select((.pr_number == ${{ github.event.pull_request.number }}) and (.fork_repo.id == "${{ github.event.pull_request.head.ref }}")) | .app.id) | .[]')
+
+        echo "REVIEWAPP_ID_TOBEDELETED=$REVIEWAPP_ID_TOBEDELETED"
+
     #     curl -X DELETE https://api.heroku.com/apps/$APP_NAME \
     #     -H "Content-Type: application/json" \
     #     -H "Accept: application/vnd.heroku+json; version=3" \
