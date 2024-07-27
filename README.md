@@ -1,2 +1,2 @@
 # heroku-review-apps-action
-GitHub Action to create an Review App from a private repository
+GitHub Action to create a Review App from a private repository using Source Endpoint to upload the code
