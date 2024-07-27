@@ -116,7 +116,8 @@ runs:
         REVIEWAPP_ID_TOBEDELETED=$(curl https://api.heroku.com/pipelines/${{ inputs.heroku-pipeline-id }}/review-apps \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
-        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}")
+        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
+        jq -r 'map(select((.pr_number == ${{ github.event.pull_request.number }}) and (.fork_repo.id == "${{ github.event.pull_request.head.ref }}")) | .app.id) | .[]')
 
         echo "REVIEWAPP_ID_TOBEDELETED=$REVIEWAPP_ID_TOBEDELETED"
 
@@ -126,7 +127,3 @@ runs:
     #     -H "Authorization: Bearer ${{ inputs.heroku-api-key }}"
 
             # REVIEWAPP_ID_TOBEDELETED=$(curl https://api.heroku.com/pipelines/${{ inputs.heroku-api-key }}/review-apps \
-        # -H "Content-Type: application/json" \
-        # -H "Accept: application/vnd.heroku+json; version=3" \
-        # -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
-        # jq -r 'map(select((.pr_number == ${{ github.event.pull_request.number }}) and (.fork_repo.id == "${{ github.event.pull_request.head.ref }}")) | .app.id) | .[]')
