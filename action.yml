@@ -2,9 +2,6 @@ name: "Heroku Review Apps Action"
 description: Use Heroku Review Apps API to create review apps
 author: A.Bernicchia
 inputs:
-  # heroku-app-name:
-  #   description: "Your Heroku App name"
-  #   required: true
   heroku-api-key:
     description: "Your Heroku API key"
     required: true
@@ -33,7 +30,7 @@ runs:
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
         jq -r '{get: .source_blob.get_url, put: .source_blob.put_url}') && echo SOURCE_ENDPOINT=$SOURCE_ENDPOINT >> $GITHUB_ENV
-        
+
     # it assumes that this action is preceeded by the checkout action to access the source code
     - name: Compress Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
