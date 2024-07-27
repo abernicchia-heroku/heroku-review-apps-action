@@ -62,6 +62,7 @@ runs:
       shell: bash
       run: |
         echo 'Create Review App'
+        echo "this is the pipID: ${{ inputs.heroku-pipeline-id }}"
         export SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.get')
         export NEW_REVIEWAPP_OUTPUT=$(curl -X POST https://api.heroku.com/review-apps \
         -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${GITHUB_SHA::7}"'"},
