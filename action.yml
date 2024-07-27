@@ -40,6 +40,7 @@ runs:
       shell: bash
       run: |
         echo 'Creating a source endpoint DEBUG...'
+        echo "this is the api key: ${{ inputs.heroku-api-key }}"
         curl -X POST https://api.heroku.com/sources \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
