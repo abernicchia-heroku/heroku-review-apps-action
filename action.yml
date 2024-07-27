@@ -45,22 +45,19 @@ runs:
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
         jq -r '{get: .source_blob.get_url, put: .source_blob.put_url}') && echo SOURCE_ENDPOINT=$SOURCE_ENDPOINT >> $GITHUB_ENV
-
     # it assumes that this action is preceeded by the checkout action to access the source code
     - name: Compress Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
       run: |
         tar -czvf source.tar.gz ${{ inputs.files-glob }}
-
     - name: Upload Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
       run: |
         export URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.put')
         curl $URL -X PUT -H 'Content-Type:' --data-binary @source.tar.gz
-
-- name: Create Review App
+    - name: Create Review App
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || ((github.event.action == 'opened' || github.event.action == 'reopened'))) }}
       shell: bash
       run: |
