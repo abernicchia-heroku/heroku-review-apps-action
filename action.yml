@@ -39,6 +39,11 @@ runs:
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
       run: |
+        echo 'Creating a source endpoint DEBUG...'
+        curl -X POST https://api.heroku.com/sources \
+        -H "Content-Type: application/json" \
+        -H "Accept: application/vnd.heroku+json; version=3" \
+        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}"
         echo 'Creating a source endpoint...'
         SOURCE_ENDPOINT=$(curl -X POST https://api.heroku.com/sources \
         -H "Content-Type: application/json" \
