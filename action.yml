@@ -69,7 +69,7 @@ runs:
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
-        jq -r 'map(select((.pr_number == ${{ github.event.pull_request.number }}) and (.branch == "${{ github.event.pull_request.head.ref }}")) | .app.id) | .[]')
+        jq -r 'map(select((.pr_number == ${{ github.event.pull_request.number }}) and (.branch == "${{ github.event.pull_request.head.ref }}")) | .id) | .[]')
 
         echo "REVIEWAPP_ID_TOBEDELETED=$REVIEWAPP_ID_TOBEDELETED"
         echo "Deleting Review App ..."
