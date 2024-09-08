@@ -21,7 +21,7 @@ runs:
       shell: bash
       run: |
         echo "Creating a source endpoint ..."
-        SOURCE_ENDPOINT=$(curl -f -X POST https://api.heroku.com/sources \
+        SOURCE_ENDPOINT=$(curl --fail-with-body -X POST https://api.heroku.com/sources \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
@@ -44,7 +44,7 @@ runs:
       shell: bash
       run: |
         URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.put')
-        curl -f $URL -X PUT -H 'Content-Type:' --data-binary @/tmp/source.tar.gz
+        curl --fail-with-body $URL -X PUT -H 'Content-Type:' --data-binary @/tmp/source.tar.gz
 
     - name: Create Review App
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || github.event.action == 'opened' || github.event.action == 'reopened') }}
@@ -52,9 +52,8 @@ runs:
       run: |
         echo "Create Review App"
         SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.get')
-        echo "SOURCE_GET_URL=$SOURCE_GET_URL"
 
-        curl -f -X POST https://api.heroku.com/review-apps \
+        curl --fail-with-body -X POST https://api.heroku.com/review-apps \
         -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${GITHUB_SHA::7}"'"},
         "pipeline":"'"${{ inputs.heroku-pipeline-id }}"'",
         "pr_number":${{ github.event.pull_request.number }},
@@ -68,14 +67,14 @@ runs:
       if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
       shell: bash
       run: |
-        REVIEWAPP_ID_TOBEDELETED=$(curl -f "https://api.heroku.com/pipelines/${{ inputs.heroku-pipeline-id }}/review-apps" \
+        REVIEWAPP_ID_TOBEDELETED=$(curl --fail-with-body "https://api.heroku.com/pipelines/${{ inputs.heroku-pipeline-id }}/review-apps" \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
-        jq -r 'map(select((.pr_number == ${{ github.event.pull_request.number }}) and (.branch == "${{ github.event.pull_request.head.ref }}")) | .id) | .[]')
+        jq -er 'map(select((.pr_number == ${{ github.event.pull_request.number }}) and (.branch == "${{ github.event.pull_request.head.ref }}")) | .id) | .[]')
 
         echo "Deleting Review App $REVIEWAPP_ID_TOBEDELETED ..."
-        curl -f -X DELETE "https://api.heroku.com/review-apps/$REVIEWAPP_ID_TOBEDELETED" \
+        curl --fail-with-body -X DELETE "https://api.heroku.com/review-apps/$REVIEWAPP_ID_TOBEDELETED" \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}"
