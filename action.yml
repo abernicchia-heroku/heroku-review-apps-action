@@ -29,7 +29,8 @@ runs:
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
-        jq -r '{get: .source_blob.get_url, put: .source_blob.put_url}') && echo SOURCE_ENDPOINT=$SOURCE_ENDPOINT >> $GITHUB_ENV
+        jq -r '{get: .source_blob.get_url, put: .source_blob.put_url}')
+        echo "SOURCE_ENDPOINT=$SOURCE_ENDPOINT" >> $GITHUB_ENV
 
     # it assumes that this action is preceeded by the checkout action to access the source code
     - name: Compress Source Code
