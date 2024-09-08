@@ -5,10 +5,6 @@ inputs:
   heroku-api-key:
     description: "Your Heroku API key"
     required: true
-  files-glob:
-    default: "*"
-    description: "The glob pattern for files to include in the deployment"
-    required: false
   heroku-pipeline-id:
     description: "The id of the Heroku pipeline to create Review Apps"
     required: true
@@ -33,12 +29,14 @@ runs:
         echo "SOURCE_ENDPOINT=$SOURCE_ENDPOINT" >> $GITHUB_ENV
 
     # it assumes that this action is preceeded by the checkout action to access the source code
+    # files filtering must happen at checkout (see sparse-checkout from https://github.com/actions/checkout), 
+    # here everything is included using find to avoid tar unwanted options injection in case the source repo has been compromised (with files name that mimic tar options e.g. "--checkpoint-action=exec=sh shell.sh")
     - name: Compress Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
       run: |
-        tar -czvf source.tar.gz ${{ inputs.files-glob }}
-
+        tar -czvf source.tar.gz $(find . -name "*" -print0 | xargs -0)
+    
     - name: Upload Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
@@ -47,7 +45,7 @@ runs:
         curl $URL -X PUT -H 'Content-Type:' --data-binary @source.tar.gz
 
     - name: Create Review App
-      if: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || ((github.event.action == 'opened' || github.event.action == 'reopened'))) }}
+      if: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || github.event.action == 'opened' || github.event.action == 'reopened') }}
       shell: bash
       run: |
         echo 'Create Review App'
@@ -66,7 +64,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
       shell: bash
       run: |
-        REVIEWAPP_ID_TOBEDELETED=$(curl https://api.heroku.com/pipelines/${{ inputs.heroku-pipeline-id }}/review-apps \
+        REVIEWAPP_ID_TOBEDELETED=$(curl "https://api.heroku.com/pipelines/${{ inputs.heroku-pipeline-id }}/review-apps" \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
@@ -75,7 +73,7 @@ runs:
         echo "REVIEWAPP_ID_TOBEDELETED=$REVIEWAPP_ID_TOBEDELETED"
         echo "Deleting Review App ..."
 
-        curl -X DELETE https://api.heroku.com/review-apps/$REVIEWAPP_ID_TOBEDELETED \
+        curl -X DELETE "https://api.heroku.com/review-apps/$REVIEWAPP_ID_TOBEDELETED" \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}"
