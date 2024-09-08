@@ -60,7 +60,7 @@ runs:
         }' \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Content-Type: application/json" \
-        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}"
+        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" 2&>1
 
     - name: Delete Review App
       if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
