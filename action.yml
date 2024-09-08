@@ -31,16 +31,13 @@ runs:
     # it assumes that this action is preceeded by the checkout action to access the source code
     # files filtering must happen at checkout (see sparse-checkout from https://github.com/actions/checkout), 
     # here everything is included using find to avoid tar unwanted options injection in case the source repo has been compromised (with files name that mimic tar options e.g. "--checkpoint-action=exec=sh shell.sh")
-
-    # tar -czvf source.tar.gz $(find . -name "*" -print0 | xargs -0)
     - name: Compress Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
       run: |
         echo "Compressing Source Code ..."
-        tar -czvf source.tar.gz *
+        tar -czvf source.tar.gz $(find . -name "*" -print0 | xargs -0)
 
-    
     - name: Upload Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
