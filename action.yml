@@ -31,7 +31,7 @@ runs:
     # it assumes that this action is preceeded by the checkout action to access the source code
     # files filtering must happen at checkout (see sparse-checkout from https://github.com/actions/checkout), 
     # here everything is included using find to avoid tar unwanted options injection in case the source repo has been compromised (with files name that mimic tar options e.g. "--checkpoint-action=exec=sh shell.sh")
-    # tar -czvf /tmp/source.tar.gz $(find . -name "*" -print0 | xargs -0)
+    # tar output file is created under /tmp to avoid the "warning file changed as we read it" that forces exit code to 1
     - name: Compress Source Code
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
@@ -50,8 +50,10 @@ runs:
       if: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || github.event.action == 'opened' || github.event.action == 'reopened') }}
       shell: bash
       run: |
-        echo 'Create Review App'
+        echo "Create Review App"
         SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.get')
+        echo "SOURCE_GET_URL=$SOURCE_GET_URL"
+
         curl -f -X POST https://api.heroku.com/review-apps \
         -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${GITHUB_SHA::7}"'"},
         "pipeline":"'"${{ inputs.heroku-pipeline-id }}"'",
