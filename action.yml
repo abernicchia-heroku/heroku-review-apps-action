@@ -41,7 +41,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
       run: |
-        export URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.put')
+        URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.put')
         curl $URL -X PUT -H 'Content-Type:' --data-binary @source.tar.gz
 
     - name: Create Review App
@@ -49,16 +49,16 @@ runs:
       shell: bash
       run: |
         echo 'Create Review App'
-        export SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.get')
-        export NEW_REVIEWAPP_OUTPUT=$(curl -X POST https://api.heroku.com/review-apps \
+        SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -r '.get')
+        curl -X POST https://api.heroku.com/review-apps \
         -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${GITHUB_SHA::7}"'"},
         "pipeline":"'"${{ inputs.heroku-pipeline-id }}"'",
         "pr_number":${{ github.event.pull_request.number }},
         "branch":"'"${{ github.event.pull_request.head.ref }}"'"        
         }' \
-        -H 'Accept: application/vnd.heroku+json; version=3' \
+        -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Content-Type: application/json" \
-        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}")
+        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}"
 
     - name: Delete Review App
       if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
@@ -70,11 +70,8 @@ runs:
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
         jq -r 'map(select((.pr_number == ${{ github.event.pull_request.number }}) and (.branch == "${{ github.event.pull_request.head.ref }}")) | .id) | .[]')
 
-        echo "REVIEWAPP_ID_TOBEDELETED=$REVIEWAPP_ID_TOBEDELETED"
-        echo "Deleting Review App ..."
-
+        echo "Deleting Review App $REVIEWAPP_ID_TOBEDELETED ..."
         curl -X DELETE "https://api.heroku.com/review-apps/$REVIEWAPP_ID_TOBEDELETED" \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
         -H "Authorization: Bearer ${{ inputs.heroku-api-key }}"
-
