@@ -20,7 +20,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
       run: |
-        echo 'Creating a source endpoint...'
+        echo "Creating a source endpoint..."
         SOURCE_ENDPOINT=$(curl -f -X POST https://api.heroku.com/sources \
         -H "Content-Type: application/json" \
         -H "Accept: application/vnd.heroku+json; version=3" \
@@ -35,6 +35,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
       shell: bash
       run: |
+        echo "Compressing Source Code..."
         tar -czvf source.tar.gz $(find . -name "*" -print0 | xargs -0)
     
     - name: Upload Source Code
