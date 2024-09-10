@@ -27,8 +27,9 @@ runs:
         [[ "${{ inputs.heroku-api-key }}" ]] || { echo "heroku-api-key is required" ; exit 1; }
         [[ "${{ inputs.heroku-pipeline-id }}" ]] || { echo "heroku-pipeline-id is required" ; exit 1; }
         echo "Validating inputs 2 ..."
-
         [[ "${{ inputs.remove-git-folder }}" != "true" && "${{ inputs.remove-git-folder }}" != "false" ]] && { echo "invalid value for remove-git-folder input. Expected 'true' or 'false'" ; exit 1; }
+        echo "Validating inputs 3 ..."
+
 
     # this action must be preceeded by the actions/checkout to retrieve the source code
     # files filtering must happen at checkout (see sparse-checkout from https://github.com/actions/checkout), 
