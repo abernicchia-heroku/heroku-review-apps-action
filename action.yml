@@ -80,54 +80,54 @@ runs:
       run: |
         echo "Create Review App"
 
-        # trap tarball_cleanup EXIT
+        trap tarball_cleanup EXIT
 
-        # tarball_cleanup() {
-        #     local exit_code=$?
+        tarball_cleanup() {
+            local exit_code=$?
             
-        #     echo "Exiting occurred with exit code: $exit_code - removing the source code tarball ..."
-        #     URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.put')
-        #     curl --fail-with-body $URL -X PUT -H 'Content-Type:' --data-binary ""
+            echo "Exiting occurred with exit code: $exit_code - removing the source code tarball ..."
+            URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.put')
+            curl --fail-with-body $URL -X PUT -H 'Content-Type:' --data-binary ""
             
-        #     exit $exit_code
-        # }
+            exit $exit_code
+        }
 
-        # SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.get')        
-        # REVIEW_APP_ID=$(curl --fail-with-body -X POST https://api.heroku.com/review-apps \
-        # -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${GITHUB_SHA::7}"'"},
-        # "pipeline":"'"${{ inputs.heroku-pipeline-id }}"'",
-        # "pr_number":${{ github.event.pull_request.number }},
-        # "branch":"'"${{ github.event.pull_request.head.ref }}"'"        
-        # }' \
-        # -H "Accept: application/vnd.heroku+json; version=3" \
-        # -H "Content-Type: application/json" \
-        # -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
-        # jq -er '.id')
+        SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.get')        
+        REVIEW_APP_ID=$(curl --fail-with-body -X POST https://api.heroku.com/review-apps \
+        -d '{"source_blob":{"url":"'"$SOURCE_GET_URL"'", "version": "'"${GITHUB_SHA::7}"'"},
+        "pipeline":"'"${{ inputs.heroku-pipeline-id }}"'",
+        "pr_number":${{ github.event.pull_request.number }},
+        "branch":"'"${{ github.event.pull_request.head.ref }}"'"        
+        }' \
+        -H "Accept: application/vnd.heroku+json; version=3" \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
+        jq -er '.id')
 
-        # echo "Waiting for Review App creation $REVIEW_APP_ID ..."
-        # max_time="${{ review-app-creation-check-timeout }}"
-        # start_time=$(date +%s)
+        echo "Waiting for Review App creation $REVIEW_APP_ID ..."
+        max_time="${{ inputs.review-app-creation-check-timeout }}"
+        start_time=$(date +%s)
 
-        # while true; do
-        #     current_time=$(date +%s)
-        #     elapsed_time=$((current_time - start_time))    
-        #     if [ "$elapsed_time" -ge "$max_time" ]; then
-        #         echo "Max execution time reached, breaking polling ..."
-        #         break   
-        #     fi
+        while true; do
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - start_time))    
+            if [ "$elapsed_time" -ge "$max_time" ]; then
+                echo "Max execution time reached, breaking polling ..."
+                break   
+            fi
 
-        #     REVIEW_APP_STATUS=$(curl --retry 5 --fail-with-body "https://api.heroku.com/review-apps/REVIEW_APP_ID" \
-        #     -H "Accept: application/vnd.heroku+json; version=3" \
-        #     -H "Content-Type: application/json" \
-        #     -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
-        #     jq -er '.status')
+            REVIEW_APP_STATUS=$(curl --retry 5 --fail-with-body "https://api.heroku.com/review-apps/REVIEW_APP_ID" \
+            -H "Accept: application/vnd.heroku+json; version=3" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
+            jq -er '.status')
 
-        #     [[ "$REVIEW_APP_STATUS" == "created" ]] && { echo "Review App created successfully" ; exit 0; }
-        #     [[ "$REVIEW_APP_STATUS" == "errored" ]] && { echo "Review App creation completed with errors" ; exit 1; }
+            [[ "$REVIEW_APP_STATUS" == "created" ]] && { echo "Review App created successfully" ; exit 0; }
+            [[ "$REVIEW_APP_STATUS" == "errored" ]] && { echo "Review App creation completed with errors" ; exit 1; }
 
-        #     echo "Review App creation still in progress, waiting ${{ review-app-creation-check-sleep-time }} seconds ..."
-        #     sleep "${{ review-app-creation-check-sleep-time }}"
-        # done
+            echo "Review App creation still in progress, waiting ${{ inputs.review-app-creation-check-sleep-time }} seconds ..."
+            sleep "${{ inputs.review-app-creation-check-sleep-time }}"
+        done
 
     - name: Delete Review App
       if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
