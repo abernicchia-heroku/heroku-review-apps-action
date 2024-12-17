@@ -116,7 +116,7 @@ runs:
                 break   
             fi
 
-            REVIEW_APP_STATUS=$(curl --retry 5 --fail-with-body "https://api.heroku.com/review-apps/REVIEW_APP_ID" \
+            REVIEW_APP_STATUS=$(curl --retry 5 --fail-with-body "https://api.heroku.com/review-apps/$REVIEW_APP_ID" \
             -H "Accept: application/vnd.heroku+json; version=3" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
