@@ -75,7 +75,7 @@ runs:
     # Currently the only way to wait for Review App creation is polling its status ("pending" or "creating" or "created" or "deleting" or "deleted" or "errored")
     # Review App status check is retried up to 5 times with cURL to avoid aborting the polling phase due to transient errors
     - name: Create Review App
-      if: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || github.event.action == 'opened' || github.event.action == 'reopened') }}
+      if: ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' || github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'labeled') }}
       shell: bash
       run: |
         echo "Create Review App"
