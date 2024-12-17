@@ -122,7 +122,7 @@ runs:
             -H "Authorization: Bearer ${{ inputs.heroku-api-key }}" | \
             jq -er '.status')
 
-            [[ "$REVIEW_APP_STATUS" == "created" ]] && { echo "Review App created successfully" ; exit 0; }
+            [[ "$REVIEW_APP_STATUS" == "created" ]] && { echo "Review App created successfully" ; exit 0; } || \
             [[ "$REVIEW_APP_STATUS" == "errored" ]] && { echo "Review App creation completed with errors" ; exit 1; }
 
             echo "Review App creation still in progress, waiting ${{ inputs.review-app-creation-check-sleep-time }} seconds ..."
