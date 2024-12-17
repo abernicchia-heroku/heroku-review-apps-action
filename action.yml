@@ -80,17 +80,17 @@ runs:
       run: |
         echo "Create Review App"
 
-        trap tarball_cleanup EXIT
+        # trap tarball_cleanup EXIT
 
-        tarball_cleanup() {
-            local exit_code=$?
+        # tarball_cleanup() {
+        #     local exit_code=$?
             
-            echo "Exiting occurred with exit code: $exit_code - removing the source code tarball ..."
-            URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.put')
-            curl --fail-with-body $URL -X PUT -H 'Content-Type:' --data-binary ""
+        #     echo "Exiting occurred with exit code: $exit_code - removing the source code tarball ..."
+        #     URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.put')
+        #     curl --fail-with-body $URL -X PUT -H 'Content-Type:' --data-binary ""
             
-            exit $exit_code
-        }
+        #     exit $exit_code
+        # }
 
         SOURCE_GET_URL=$(echo ${{ toJSON(env.SOURCE_ENDPOINT) }} | jq -er '.get')        
         REVIEW_APP_ID=$(curl --fail-with-body -X POST https://api.heroku.com/review-apps \
