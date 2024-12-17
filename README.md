@@ -38,7 +38,7 @@ jobs:
           heroku-pipeline-id: ${{vars.HEROKU_REVIEWAPP_PIPELINE}} # set it on GitHub as variable at repository level
           remove-git-folder: false # if you want to override the default (true) - it's usually recommended to avoid exposing the .git folder
           review-app-creation-check-timeout: 600 # if you want to override the default (3600 seconds) 
-          review-app-creation-check-sleep-time: 5 # if you want to override the default (10 seconds)
+          review-app-creation-check-sleep-time: 7 # if you want to override the default (10 seconds), min 5 seconds
 ```
 
 This will be executed whenever a PR is [closed]
