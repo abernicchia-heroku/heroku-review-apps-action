@@ -38,7 +38,7 @@ runs:
         echo "Validating inputs 2 ..."
         [[ "${{ inputs.review-app-creation-check-timeout }}" =~ ^[0-9]+$ ]] || { echo "review-app-creation-check-timeout must be a number"; exit 1; }
         echo "Validating inputs 3 ..."
-        [[ "${{ inputs.review-app-creation-check-sleep-time }}" =~ ^[0-9]+$ && -ge 5 ]] || { echo "review-app-creation-check-sleep-time must be a number >= 5"; exit 1; }
+        [[ "${{ inputs.review-app-creation-check-sleep-time }}" =~ ^[0-9]+$ && ${{ inputs.review-app-creation-check-sleep-time }}" -ge 5 ]] || { echo "review-app-creation-check-sleep-time must be a number >= 5"; exit 1; }
         echo "All inputs are valid"
 
     # this action must be preceeded by the actions/checkout to retrieve the source code
